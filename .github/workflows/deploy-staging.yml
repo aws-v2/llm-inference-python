@@ -45,12 +45,13 @@ jobs:
           key: ${{ secrets.STAGING_SSH_KEY }}
           script: |
             docker network create aws-staging-network || true
-            docker pull qarani/llm-inference-service:staging
-            docker stop llm-inference-service-staging || true
-            docker rm llm-inference-service-staging || true
-            docker run -d --name llm-inference-service-staging \
+            docker pull qarani/llm-inference-service-python:staging
+            docker stop llm-inference-service-python-staging || true
+            docker rm llm-inference-service-python-staging || true
+            docker run -d --name llm-inference-service-python-staging \
               --network aws-staging-network \
               -v /var/run/docker.sock:/var/run/docker.sock \
+              -v /models:/models \
               -e APP_PROFILE=staging \
               -e DB_HOST=postgres-staging \
               -e DB_PORT=5432 \
@@ -65,7 +66,7 @@ jobs:
               -e TEMPERATURE=0.7 \
               -e LOG_LEVEL=DEBUG \
               -e REQUEST_TIMEOUT=60 \
-              qarani/llm-inference-service:staging
+              qarani/llm-inference-service-python:staging
 
   open-pr-to-main:
     needs: deploy
