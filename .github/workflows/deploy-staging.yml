@@ -59,7 +59,7 @@ jobs:
               -e DB_PASSWORD=postgres-staging-password \
               -e DB_NAME=llm_db \
               -e NATS_URL=nats://nats-staging:4222 \
-              -e NATS_USERNAME=nats-staging-user \
+              -e NATS_USER=nats-staging-user \
               -e NATS_PASSWORD=nats-staging-password \
               -e MAX_TOKENS=2048 \
               -e TEMPERATURE=0.7 \
