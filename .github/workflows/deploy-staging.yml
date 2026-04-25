@@ -51,7 +51,7 @@ jobs:
             docker run -d --name llm-inference-service-python-staging \
               --network aws-staging-network \
               -v /var/run/docker.sock:/var/run/docker.sock \
-              -v /home/x6617274696/models:/app/models \
+              -v /home/x6617274696/aws/models:/app/models \
               -e APP_PROFILE=staging \
               -e DB_HOST=postgres-staging \
               -e DB_PORT=5432 \
@@ -61,11 +61,11 @@ jobs:
               -e NATS_URL=nats://nats-staging:4222 \
               -e NATS_USERNAME=nats-staging-user \
               -e NATS_PASSWORD=nats-staging-password \
-              -e MODEL_PATH=/models/llama-3.1-8b-instruct.Q4_K_M.gguf \
               -e MAX_TOKENS=2048 \
               -e TEMPERATURE=0.7 \
               -e LOG_LEVEL=DEBUG \
               -e REQUEST_TIMEOUT=60 \
+              -e MODEL_PATH=/app/models/tinyllama-1.1b-chat-v1.0.Q5_K_M.gguf
               qarani/llm-inference-service-python:staging
 
   open-pr-to-main:
