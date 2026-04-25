@@ -51,7 +51,7 @@ jobs:
             docker run -d --name llm-inference-service-python-staging \
               --network aws-staging-network \
               -v /var/run/docker.sock:/var/run/docker.sock \
-              -v /models:/models \
+              -v /home/x6617274696/models:/app/models \
               -e APP_PROFILE=staging \
               -e DB_HOST=postgres-staging \
               -e DB_PORT=5432 \
