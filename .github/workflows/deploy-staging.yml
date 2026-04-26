@@ -3,6 +3,11 @@ name: Staging Deployment pipeline
 on:
   push:
     branches: [ "staging" ]
+  pull_request:
+    branches: [ "staging" ]
+permissions:
+  contents: write 
+  pull-requests: write
 
 jobs:
   staging-test:

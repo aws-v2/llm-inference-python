@@ -3,6 +3,8 @@ name: Dev CI
 on:
   push:
     branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
 
 permissions:
   contents: write
@@ -47,7 +49,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: qarani/llm-inference-service-python:staging
+        tags: qarani/llm-inference-python:dev
 
   dev-open-pr-to-staging:
     needs: dev-build

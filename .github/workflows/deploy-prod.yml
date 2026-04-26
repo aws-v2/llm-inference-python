@@ -3,6 +3,12 @@ name: Prod deployment
 on:
   push:
     branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: write 
+  pull-requests: write
 
 jobs:
   prod-test:
@@ -50,7 +56,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: qarani/llm-inference-service-python:prod
+        tags: qarani/llm-inference-python:prod
 
   prod-deploy:
     needs: prod-build
@@ -69,11 +75,11 @@ jobs:
           passphrase: ${{ secrets.PROD_SSH_PASSPHRASE }}
           script: |
             docker network create aws-prod-network || true
-            docker pull qarani/llm-inference-service:prod
-            docker stop llm-inference-service-prod || true
-            docker rm llm-inference-service-prod || true
+            docker pull qarani/llm-inference-python:prod
+            docker stop llm-inference-python-prod || true
+            docker rm llm-inference-python-prod || true
             docker run -d \
-              --name llm-inference-service-prod \
+              --name llm-inference-python-prod \
               --network aws-prod-network \
               -v /var/run/docker.sock:/var/run/docker.sock \
               -p 8805:8805 \
@@ -87,7 +93,7 @@ jobs:
               -e NATS_URL=nats://nats-prod:4222 \
               -e NATS_USERNAME=nats-prod-user \
               -e NATS_PASSWORD=nats-prod-password \
-              qarani/llm-inference-service:prod
+              qarani/llm-inference-python:prod
 
 
 
