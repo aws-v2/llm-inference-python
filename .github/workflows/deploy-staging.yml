@@ -5,7 +5,26 @@ on:
     branches: [ "staging" ]
 
 jobs:
-  build-and-push:
+  staging-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest
+
+  staging-build-image:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -26,8 +45,9 @@ jobs:
         push: true
         tags: qarani/llm-inference-service-python:staging
 
-  deploy:
-    needs: build-and-push
+  staging-deploy:
+    needs: staging-build-image
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -68,8 +88,9 @@ jobs:
               -e MODEL_PATH=/app/models/tinyllama-1.1b-chat-v1.0.Q5_K_M.gguf \
               qarani/llm-inference-service-python:staging
 
-  open-pr-to-main:
-    needs: deploy
+  staging-open-pr-to-main:
+    needs: staging-deploy
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -89,3 +110,35 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+
+
+
+  # post_linkedin:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+
+  #     - name: Run tests
+  #       run: |
+  #         # Run your usual tests
+  #         go test ./...
+
+  #     - name: Get diff
+  #       id: diff
+  #       run: |
+  #         PREV_COMMIT=$(git rev-parse HEAD~1)
+  #         git diff $PREV_COMMIT HEAD > diff.txt
+  #         echo "diff<<EOF" >> $GITHUB_OUTPUT
+  #         cat diff.txt >> $GITHUB_OUTPUT
+  #         echo "EOF" >> $GITHUB_OUTPUT
+
+  #     - name: Call centralized LinkedIn Poster Service
+  #       env:
+  #         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  #         LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+  #       run: |
+  #         curl -X POST https://linkedin-poster.example.com/post \
+  #           -H "Content-Type: application/json" \
+  #           -d "{\"repo\":\"${GITHUB_REPOSITORY}\", \"diff\":\"${{ steps.diff.outputs.diff }}\"}"
