@@ -48,7 +48,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: qarani/llm-inference-service-python:staging
+        tags: qarani/llm-inference-python:staging
 
   staging-deploy:
     needs: staging-build-image
@@ -70,10 +70,10 @@ jobs:
           key: ${{ secrets.STAGING_SSH_KEY }}
           script: |
             docker network create aws-staging-network || true
-            docker pull qarani/llm-inference-service-python:staging
-            docker stop llm-inference-service-python-staging || true
-            docker rm llm-inference-service-python-staging || true
-            docker run -d --name llm-inference-service-python-staging \
+            docker pull qarani/llm-inference-python:staging
+            docker stop llm-inference-python-staging || true
+            docker rm llm-inference-python-staging || true
+            docker run -d --name llm-inference-python-staging \
               --network aws-staging-network \
               -v /var/run/docker.sock:/var/run/docker.sock \
               -v /home/x6617274696/aws/models:/app/models \
@@ -91,7 +91,7 @@ jobs:
               -e LOG_LEVEL=DEBUG \
               -e REQUEST_TIMEOUT=60 \
               -e MODEL_PATH=/app/models/tinyllama-1.1b-chat-v1.0.Q5_K_M.gguf \
-              qarani/llm-inference-service-python:staging
+              qarani/llm-inference-python:staging
 
   staging-open-pr-to-main:
     needs: staging-deploy

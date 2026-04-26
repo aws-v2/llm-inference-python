@@ -10,6 +10,8 @@ def config():
         env="dev",
         nats_url="nats://localhost:4222",
         nats_subject="dev.v1.inference",
+        nats_user="test",          # ✅ add this
+        nats_password="test",      # ✅ add this
         model_path="models/tiny-llama.gguf",
         max_tokens=128,
         temperature=0.7,
