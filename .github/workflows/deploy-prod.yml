@@ -3,9 +3,15 @@ name: Prod deployment
 on:
   push:
     branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: write 
+  pull-requests: write
 
 jobs:
-  build-and-push:
+  prod-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,10 +33,38 @@ jobs:
           context: .
           push: true
           tags: qarani/llm-inference-service:prod
+  
 
-  deploy:
-    needs: build-and-push
+  prod-build:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: prod-test
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: qarani/llm-inference-python:prod
+
+  prod-deploy:
+    needs: prod-build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+
+
     steps:
       - name: Deploy to EC2 via SSH....
         uses: appleboy/ssh-action@v1.0.3
@@ -41,11 +75,11 @@ jobs:
           passphrase: ${{ secrets.PROD_SSH_PASSPHRASE }}
           script: |
             docker network create aws-prod-network || true
-            docker pull qarani/llm-inference-service:prod
-            docker stop llm-inference-service-prod || true
-            docker rm llm-inference-service-prod || true
+            docker pull qarani/llm-inference-python:prod
+            docker stop llm-inference-python-prod || true
+            docker rm llm-inference-python-prod || true
             docker run -d \
-              --name llm-inference-service-prod \
+              --name llm-inference-python-prod \
               --network aws-prod-network \
               -v /var/run/docker.sock:/var/run/docker.sock \
               -p 8805:8805 \
@@ -59,7 +93,7 @@ jobs:
               -e NATS_URL=nats://nats-prod:4222 \
               -e NATS_USERNAME=nats-prod-user \
               -e NATS_PASSWORD=nats-prod-password \
-              qarani/llm-inference-service:prod
+              qarani/llm-inference-python:prod
 
 
 
