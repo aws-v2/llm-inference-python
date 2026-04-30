@@ -82,25 +82,26 @@ jobs:
           script: |
             docker network create aws-prod-network || true
             docker pull qarani/llm-inference-python:prod
-            docker stop llm-inference-python-prod || true
-            docker rm llm-inference-python-prod || true
-            docker run -d \
+            docker service rm llm-inference-python-prod || true
+            docker service create \
               --name llm-inference-python-prod \
               --network aws-prod-network \
-              -v /var/run/docker.sock:/var/run/docker.sock \
-              -p 8805:8805 \
-              -e APP_PROFILE=prod \
-              -e SERVER_PORT=8805 \
-              -e DB_HOST=postgres-prod \
-              -e DB_PORT=5432 \
-              -e DB_USER=postgres-prod-user \
-              -e DB_PASSWORD=postgres-prod-password \
-              -e DB_NAME=rds_db \
-              -e NATS_URL=nats://nats-prod:4222 \
-              -e NATS_USERNAME=nats-prod-user \
-              -e NATS_PASSWORD=nats-prod-password \
+              --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
+              --mount type=bind,source=/home/martin/apps/storage/llm,target=/app/models \
+              --env APP_PROFILE=prod \
+              --env DB_HOST=postgres-prod \
+              --env DB_PORT=5432 \
+              --env DB_USER=postgres-prod-user \
+              --env DB_PASSWORD=postgres-prod-password \
+              --env DB_NAME=llm_db \
+              --env NATS_URL=nats://nats-prod:4222 \
+              --env NATS_USER=nats-prod-user \
+              --env NATS_PASSWORD=nats-prod-password \
+              --env MAX_TOKENS=2048 \
+              --env TEMPERATURE=0.7 \
+              --env LOG_LEVEL=DEBUG \
+              --env REQUEST_TIMEOUT=60 \
+              --env MODEL_PATH=/app/models/tinyllama-1.1b-chat-v1.0.Q5_K_M.gguf \
               qarani/llm-inference-python:prod
-
-
 
 
