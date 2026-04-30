@@ -76,6 +76,7 @@ jobs:
             docker pull qarani/llm-inference-python:staging
             docker stop llm-inference-python-staging || true
             docker rm llm-inference-python-staging || true
+            
             docker run -d --name llm-inference-python-staging \
               --network aws-staging-network \
               -v /var/run/docker.sock:/var/run/docker.sock \
