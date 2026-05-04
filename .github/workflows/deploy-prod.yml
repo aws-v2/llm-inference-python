@@ -87,7 +87,7 @@ jobs:
               --name llm-inference-python-prod \
               --network aws-prod-network \
               --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
-              --mount type=bind,source=/home/martin/apps/storage/llm,target=/app/models \
+              --mount type=bind,source=/home/ubuntu/apps/storage/llm,target=/app/models \
               --env APP_PROFILE=prod \
               --env DB_HOST=postgres-prod \
               --env DB_PORT=5432 \
