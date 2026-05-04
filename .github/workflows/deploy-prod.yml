@@ -88,7 +88,7 @@ jobs:
               --network aws-prod-network \
               --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
               --mount type=bind,source=/home/ubuntu/apps/storage/llm,target=/app/models \
-              --env APP_PROFILE=prod \
+              --env ENV=prod \
               --env DB_HOST=postgres-prod \
               --env DB_PORT=5432 \
               --env DB_USER=postgres-prod-user \
